@@ -35,19 +35,20 @@ if os.path.isfile(moving_app_access_token_file):
     moving_app_access_token = moving_app_file.readline()
     moving_app_file.close()
 else:
-    creds = {
+    credentials = {
         "email": input("Enter email address for Moving challenge app:"),
         "password": getpass("Enter password for Moving challenge app:")
     }
-    response = requests.post(MOVING_APP_URL_LOGIN, json=creds)
+    response = requests.post(MOVING_APP_URL_LOGIN, json=credentials)
     logging.info(f"[MOVING APP AUTHENTICATION]: Server returned '{response.status_code}'")
     moving_app_access_token = f"Bearer {response.json()['access_token']}"
     moving_app_file = open(moving_app_access_token_file, "w+")
     moving_app_file.write(f"{moving_app_access_token}")
     moving_app_file.close()
 
+number_of_challenge_days = (datetime.date.today() - START_DATE).days + 1
 # Filter out records that are not important
-steps: List[DailySteps] = [step for step in garth.DailySteps.list(period=(END_DATE - START_DATE).days + 1) if START_DATE <= step.calendar_date <= END_DATE]
+steps: List[DailySteps] = [step for step in garth.DailySteps.list(period=number_of_challenge_days) if START_DATE <= step.calendar_date <= END_DATE]
 for step in steps:
     # Payload data expected from Moving App
     payload = {
